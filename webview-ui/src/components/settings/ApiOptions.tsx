@@ -50,6 +50,7 @@ const ApiOptions = ({ apiErrorMessage, modelIdErrorMessage }: ApiOptionsProps) =
 	const { apiConfiguration, uriScheme, handleInputChange } = useExtensionState()
 	const [ollamaModels, setOllamaModels] = useState<string[]>([])
 	const [lmStudioModels, setLmStudioModels] = useState<string[]>([])
+	const [anythingLLMModels, setAnythingLLMModels] = useState<string[]>([])
 	const [vsCodeLmModels, setVsCodeLmModels] = useState<vscodemodels.LanguageModelChatSelector[]>([])
 	const [anthropicBaseUrlSelected, setAnthropicBaseUrlSelected] = useState(!!apiConfiguration?.anthropicBaseUrl)
 	const [azureApiVersionSelected, setAzureApiVersionSelected] = useState(!!apiConfiguration?.azureApiVersion)
@@ -60,24 +61,39 @@ const ApiOptions = ({ apiErrorMessage, modelIdErrorMessage }: ApiOptionsProps) =
 		return normalizeApiConfiguration(apiConfiguration)
 	}, [apiConfiguration])
 
-	// Poll ollama/lmstudio models
+	// Poll ollama/lmstudio/anythingllm models
 	const requestLocalModels = useCallback(() => {
 		if (selectedProvider === "ollama") {
 			vscode.postMessage({ type: "requestOllamaModels", text: apiConfiguration?.ollamaBaseUrl })
 		} else if (selectedProvider === "lmstudio") {
 			vscode.postMessage({ type: "requestLmStudioModels", text: apiConfiguration?.lmStudioBaseUrl })
+		} else if (selectedProvider === "anythingllm") {
+			vscode.postMessage({ type: "requestAnythingLLMModels", text: apiConfiguration?.anythingLLMBaseUrl })
 		} else if (selectedProvider === "vscode-lm") {
 			vscode.postMessage({ type: "requestVsCodeLmModels" })
 		}
-	}, [selectedProvider, apiConfiguration?.ollamaBaseUrl, apiConfiguration?.lmStudioBaseUrl])
+	}, [
+		selectedProvider,
+		apiConfiguration?.ollamaBaseUrl,
+		apiConfiguration?.lmStudioBaseUrl,
+		apiConfiguration?.anythingLLMBaseUrl,
+	])
 	useEffect(() => {
-		if (selectedProvider === "ollama" || selectedProvider === "lmstudio" || selectedProvider === "vscode-lm") {
+		if (
+			selectedProvider === "ollama" ||
+			selectedProvider === "lmstudio" ||
+			selectedProvider === "anythingllm" ||
+			selectedProvider === "vscode-lm"
+		) {
 			requestLocalModels()
 		}
 	}, [selectedProvider, requestLocalModels])
 	useInterval(
 		requestLocalModels,
-		selectedProvider === "ollama" || selectedProvider === "lmstudio" || selectedProvider === "vscode-lm"
+		selectedProvider === "ollama" ||
+			selectedProvider === "lmstudio" ||
+			selectedProvider === "anythingllm" ||
+			selectedProvider === "vscode-lm"
 			? 2000
 			: null,
 	)
@@ -87,6 +103,8 @@ const ApiOptions = ({ apiErrorMessage, modelIdErrorMessage }: ApiOptionsProps) =
 			setOllamaModels(message.ollamaModels)
 		} else if (message.type === "lmStudioModels" && message.lmStudioModels) {
 			setLmStudioModels(message.lmStudioModels)
+		} else if (message.type === "anythingLLMModels" && message.anythingLLMModels) {
+			setAnythingLLMModels(message.anythingLLMModels)
 		} else if (message.type === "vsCodeLmModels" && message.vsCodeLmModels) {
 			setVsCodeLmModels(message.vsCodeLmModels)
 		}
@@ -148,6 +166,7 @@ const ApiOptions = ({ apiErrorMessage, modelIdErrorMessage }: ApiOptionsProps) =
 						{ value: "vscode-lm", label: "VS Code LM API" },
 						{ value: "mistral", label: "Mistral" },
 						{ value: "lmstudio", label: "LM Studio" },
+						{ value: "anythingllm", label: "AnythingLLM" },
 						{ value: "ollama", label: "Ollama" },
 						{ value: "unbound", label: "Unbound" },
 					]}
@@ -1132,6 +1151,77 @@ const ApiOptions = ({ apiErrorMessage, modelIdErrorMessage }: ApiOptionsProps) =
 				</div>
 			)}
 
+			{selectedProvider === "anythingllm" && (
+				<div>
+					<VSCodeTextField
+						value={apiConfiguration?.anythingLLMBaseUrl || ""}
+						style={{ width: "100%" }}
+						type="url"
+						onInput={handleInputChange("anythingLLMBaseUrl")}
+						placeholder={"Default: http://localhost:3001"}>
+						<span style={{ fontWeight: 500 }}>Base URL (optional)</span>
+					</VSCodeTextField>
+					<VSCodeTextField
+						value={apiConfiguration?.anythingLLMModelId || ""}
+						style={{ width: "100%" }}
+						onInput={handleInputChange("anythingLLMModelId")}
+						placeholder={"e.g. meta-llama-3.1-8b-instruct"}>
+						<span style={{ fontWeight: 500 }}>Model ID</span>
+					</VSCodeTextField>
+					{anythingLLMModels.length > 0 && (
+						<VSCodeRadioGroup
+							value={
+								anythingLLMModels.includes(apiConfiguration?.anythingLLMModelId || "")
+									? apiConfiguration?.anythingLLMModelId
+									: ""
+							}
+							onChange={(e) => {
+								const value = (e.target as HTMLInputElement)?.value
+								// need to check value first since radio group returns empty string sometimes
+								if (value) {
+									handleInputChange("anythingLLMModelId")({
+										target: { value },
+									})
+								}
+							}}>
+							{anythingLLMModels.map((model) => (
+								<VSCodeRadio
+									key={model}
+									value={model}
+									checked={apiConfiguration?.anythingLLMModelId === model}>
+									{model}
+								</VSCodeRadio>
+							))}
+						</VSCodeRadioGroup>
+					)}
+					<p
+						style={{
+							fontSize: "12px",
+							marginTop: "5px",
+							color: "var(--vscode-descriptionForeground)",
+						}}>
+						AnythingLLM allows you to run models locally on your computer. For instructions on how to get
+						started, see their
+						<VSCodeLink
+							href="https://docs.anythingllm.com/introduction"
+							style={{ display: "inline", fontSize: "inherit" }}>
+							quickstart guide.
+						</VSCodeLink>
+						You will also need to start AnythingLLM's{" "}
+						<VSCodeLink
+							href="http://localhost:3001/api/docs"
+							style={{ display: "inline", fontSize: "inherit" }}>
+							local server
+						</VSCodeLink>{" "}
+						feature to use it with this extension.{" "}
+						<span style={{ color: "var(--vscode-errorForeground)" }}>
+							(<span style={{ fontWeight: 500 }}>Note:</span> Roo Code uses complex prompts and works best
+							with Claude models. Less capable models may not work as expected.)
+						</span>
+					</p>
+				</div>
+			)}
+
 			{selectedProvider === "deepseek" && (
 				<div>
 					<VSCodeTextField
@@ -1334,6 +1424,7 @@ const ApiOptions = ({ apiErrorMessage, modelIdErrorMessage }: ApiOptionsProps) =
 				selectedProvider !== "openrouter" &&
 				selectedProvider !== "openai" &&
 				selectedProvider !== "ollama" &&
+				selectedProvider !== "anythingllm" &&
 				selectedProvider !== "lmstudio" && (
 					<>
 						<div className="dropdown-container">
@@ -1572,6 +1663,12 @@ export function normalizeApiConfiguration(apiConfiguration?: ApiConfiguration) {
 			return {
 				selectedProvider: provider,
 				selectedModelId: apiConfiguration?.lmStudioModelId || "",
+				selectedModelInfo: openAiModelInfoSaneDefaults,
+			}
+		case "anythingllm":
+			return {
+				selectedProvider: provider,
+				selectedModelId: apiConfiguration?.anythingLLMModelId || "",
 				selectedModelInfo: openAiModelInfoSaneDefaults,
 			}
 		case "vscode-lm":

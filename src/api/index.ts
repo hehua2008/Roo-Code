@@ -8,6 +8,7 @@ import { VertexHandler } from "./providers/vertex"
 import { OpenAiHandler } from "./providers/openai"
 import { OllamaHandler } from "./providers/ollama"
 import { LmStudioHandler } from "./providers/lmstudio"
+import { AnythingLLMHandler } from "./providers/anythingllm"
 import { GeminiHandler } from "./providers/gemini"
 import { OpenAiNativeHandler } from "./providers/openai-native"
 import { DeepSeekHandler } from "./providers/deepseek"
@@ -44,6 +45,8 @@ export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
 			return new OllamaHandler(options)
 		case "lmstudio":
 			return new LmStudioHandler(options)
+		case "anythingllm":
+			return new AnythingLLMHandler(options)
 		case "gemini":
 			return new GeminiHandler(options)
 		case "openai-native":

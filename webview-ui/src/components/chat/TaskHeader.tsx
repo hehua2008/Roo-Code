@@ -103,6 +103,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 			apiConfiguration?.apiProvider !== "openai" &&
 			apiConfiguration?.apiProvider !== "ollama" &&
 			apiConfiguration?.apiProvider !== "lmstudio" &&
+			apiConfiguration?.apiProvider !== "anythingllm" &&
 			apiConfiguration?.apiProvider !== "gemini"
 		)
 	}, [apiConfiguration?.apiProvider])

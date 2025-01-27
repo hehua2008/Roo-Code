@@ -11,6 +11,7 @@ export function checkExistKey(config: ApiConfiguration | undefined) {
 				config.openAiApiKey,
 				config.ollamaModelId,
 				config.lmStudioModelId,
+				config.anythingLLMModelId,
 				config.geminiApiKey,
 				config.openAiNativeApiKey,
 				config.deepSeekApiKey,

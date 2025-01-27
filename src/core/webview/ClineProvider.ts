@@ -92,6 +92,8 @@ type GlobalStateKey =
 	| "ollamaBaseUrl"
 	| "lmStudioModelId"
 	| "lmStudioBaseUrl"
+	| "anythingLLMModelId"
+	| "anythingLLMBaseUrl"
 	| "anthropicBaseUrl"
 	| "azureApiVersion"
 	| "openAiStreamingEnabled"
@@ -673,6 +675,10 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 					case "requestLmStudioModels":
 						const lmStudioModels = await this.getLmStudioModels(message.text)
 						this.postMessageToWebview({ type: "lmStudioModels", lmStudioModels })
+						break
+					case "requestAnythingLLMModels":
+						const anythingLLMModels = await this.getAnythingLLMModels(message.text)
+						this.postMessageToWebview({ type: "anythingLLMModels", anythingLLMModels })
 						break
 					case "requestVsCodeLmModels":
 						const vsCodeLmModels = await this.getVsCodeLmModels()
@@ -1387,6 +1393,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			ollamaBaseUrl,
 			lmStudioModelId,
 			lmStudioBaseUrl,
+			anythingLLMModelId,
+			anythingLLMBaseUrl,
 			anthropicBaseUrl,
 			geminiApiKey,
 			openAiNativeApiKey,
@@ -1427,6 +1435,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		await this.updateGlobalState("ollamaBaseUrl", ollamaBaseUrl)
 		await this.updateGlobalState("lmStudioModelId", lmStudioModelId)
 		await this.updateGlobalState("lmStudioBaseUrl", lmStudioBaseUrl)
+		await this.updateGlobalState("anythingLLMModelId", anythingLLMModelId)
+		await this.updateGlobalState("anythingLLMBaseUrl", anythingLLMBaseUrl)
 		await this.updateGlobalState("anthropicBaseUrl", anthropicBaseUrl)
 		await this.storeSecret("geminiApiKey", geminiApiKey)
 		await this.storeSecret("openAiNativeApiKey", openAiNativeApiKey)
@@ -1504,6 +1514,25 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			}
 			const response = await axios.get(`${baseUrl}/v1/models`)
 			const modelsArray = response.data?.data?.map((model: any) => model.id) || []
+			const models = [...new Set<string>(modelsArray)]
+			return models
+		} catch (error) {
+			return []
+		}
+	}
+
+	// AnythingLLM
+
+	async getAnythingLLMModels(baseUrl?: string) {
+		try {
+			if (!baseUrl) {
+				baseUrl = "http://localhost:3001"
+			}
+			if (!URL.canParse(baseUrl)) {
+				return []
+			}
+			const response = await axios.get(`${baseUrl}/api/v1/openai/models`)
+			const modelsArray = response.data?.data?.map((model: any) => model.model) || []
 			const models = [...new Set<string>(modelsArray)]
 			return models
 		} catch (error) {
@@ -2064,6 +2093,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			ollamaBaseUrl,
 			lmStudioModelId,
 			lmStudioBaseUrl,
+			anythingLLMModelId,
+			anythingLLMBaseUrl,
 			anthropicBaseUrl,
 			geminiApiKey,
 			openAiNativeApiKey,
@@ -2136,6 +2167,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("ollamaBaseUrl") as Promise<string | undefined>,
 			this.getGlobalState("lmStudioModelId") as Promise<string | undefined>,
 			this.getGlobalState("lmStudioBaseUrl") as Promise<string | undefined>,
+			this.getGlobalState("anythingLLMModelId") as Promise<string | undefined>,
+			this.getGlobalState("anythingLLMBaseUrl") as Promise<string | undefined>,
 			this.getGlobalState("anthropicBaseUrl") as Promise<string | undefined>,
 			this.getSecret("geminiApiKey") as Promise<string | undefined>,
 			this.getSecret("openAiNativeApiKey") as Promise<string | undefined>,
@@ -2225,6 +2258,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 				ollamaBaseUrl,
 				lmStudioModelId,
 				lmStudioBaseUrl,
+				anythingLLMModelId,
+				anythingLLMBaseUrl,
 				anthropicBaseUrl,
 				geminiApiKey,
 				openAiNativeApiKey,

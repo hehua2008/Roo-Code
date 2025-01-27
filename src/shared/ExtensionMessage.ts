@@ -23,6 +23,7 @@ export interface ExtensionMessage {
 		| "selectedImages"
 		| "ollamaModels"
 		| "lmStudioModels"
+		| "anythingLLMModels"
 		| "theme"
 		| "workspaceUpdated"
 		| "invoke"
@@ -55,6 +56,7 @@ export interface ExtensionMessage {
 	images?: string[]
 	ollamaModels?: string[]
 	lmStudioModels?: string[]
+	anythingLLMModels?: string[]
 	vsCodeLmModels?: { vendor?: string; family?: string; version?: string; id?: string }[]
 	filePaths?: string[]
 	partialMessage?: ClineMessage

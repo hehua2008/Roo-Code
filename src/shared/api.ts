@@ -9,6 +9,7 @@ export type ApiProvider =
 	| "openai"
 	| "ollama"
 	| "lmstudio"
+	| "anythingllm"
 	| "gemini"
 	| "openai-native"
 	| "deepseek"
@@ -48,6 +49,8 @@ export interface ApiHandlerOptions {
 	ollamaBaseUrl?: string
 	lmStudioModelId?: string
 	lmStudioBaseUrl?: string
+	anythingLLMModelId?: string
+	anythingLLMBaseUrl?: string
 	geminiApiKey?: string
 	openAiNativeApiKey?: string
 	mistralApiKey?: string

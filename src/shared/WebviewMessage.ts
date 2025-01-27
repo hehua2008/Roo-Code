@@ -32,6 +32,7 @@ export interface WebviewMessage {
 		| "resetState"
 		| "requestOllamaModels"
 		| "requestLmStudioModels"
+		| "requestAnythingLLMModels"
 		| "openImage"
 		| "openFile"
 		| "openMention"

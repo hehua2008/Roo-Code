@@ -46,6 +46,7 @@ describe("checkExistKey", () => {
 			openAiApiKey: undefined,
 			ollamaModelId: undefined,
 			lmStudioModelId: undefined,
+			anythingLLMModelId: undefined,
 			geminiApiKey: undefined,
 			openAiNativeApiKey: undefined,
 			deepSeekApiKey: undefined,
