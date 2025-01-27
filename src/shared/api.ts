@@ -51,6 +51,7 @@ export interface ApiHandlerOptions {
 	lmStudioBaseUrl?: string
 	anythingLLMModelId?: string
 	anythingLLMBaseUrl?: string
+	anythingLLMApiKey?: string
 	geminiApiKey?: string
 	openAiNativeApiKey?: string
 	mistralApiKey?: string

@@ -13,7 +13,7 @@ export class AnythingLLMHandler implements ApiHandler, SingleCompletionHandler {
 		this.options = options
 		this.client = new OpenAI({
 			baseURL: (this.options.anythingLLMBaseUrl || "http://localhost:3001") + "/api/v1",
-			apiKey: "noop",
+			apiKey: options.anythingLLMApiKey,
 		})
 	}
 

@@ -63,8 +63,8 @@ export function validateApiConfiguration(apiConfiguration?: ApiConfiguration): s
 				}
 				break
 			case "anythingllm":
-				if (!apiConfiguration.anythingLLMModelId) {
-					return "You must provide a valid model ID."
+				if (!apiConfiguration.anythingLLMApiKey || !apiConfiguration.anythingLLMModelId) {
+					return "You must provide a valid API key and model ID."
 				}
 				break
 			case "vscode-lm":

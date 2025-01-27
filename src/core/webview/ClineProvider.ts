@@ -64,6 +64,7 @@ type SecretKey =
 	| "deepSeekApiKey"
 	| "mistralApiKey"
 	| "unboundApiKey"
+	| "anythingLLMApiKey"
 type GlobalStateKey =
 	| "apiProvider"
 	| "apiModelId"
@@ -1395,6 +1396,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			lmStudioBaseUrl,
 			anythingLLMModelId,
 			anythingLLMBaseUrl,
+			anythingLLMApiKey,
 			anthropicBaseUrl,
 			geminiApiKey,
 			openAiNativeApiKey,
@@ -1437,6 +1439,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		await this.updateGlobalState("lmStudioBaseUrl", lmStudioBaseUrl)
 		await this.updateGlobalState("anythingLLMModelId", anythingLLMModelId)
 		await this.updateGlobalState("anythingLLMBaseUrl", anythingLLMBaseUrl)
+		await this.storeSecret("anythingLLMApiKey", anythingLLMApiKey)
 		await this.updateGlobalState("anthropicBaseUrl", anthropicBaseUrl)
 		await this.storeSecret("geminiApiKey", geminiApiKey)
 		await this.storeSecret("openAiNativeApiKey", openAiNativeApiKey)
@@ -1531,7 +1534,12 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			if (!URL.canParse(baseUrl)) {
 				return []
 			}
-			const response = await axios.get(`${baseUrl}/api/v1/openai/models`)
+			const config: Record<string, any> = {}
+			const apiKey = (await this.getState()).apiConfiguration.anythingLLMApiKey
+			if (apiKey) {
+				config["headers"] = { Authorization: `Bearer ${apiKey}` }
+			}
+			const response = await axios.get(`${baseUrl}/api/v1/openai/models`, config)
 			const modelsArray = response.data?.data?.map((model: any) => model.model) || []
 			const models = [...new Set<string>(modelsArray)]
 			return models
@@ -2095,6 +2103,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			lmStudioBaseUrl,
 			anythingLLMModelId,
 			anythingLLMBaseUrl,
+			anythingLLMApiKey,
 			anthropicBaseUrl,
 			geminiApiKey,
 			openAiNativeApiKey,
@@ -2169,6 +2178,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("lmStudioBaseUrl") as Promise<string | undefined>,
 			this.getGlobalState("anythingLLMModelId") as Promise<string | undefined>,
 			this.getGlobalState("anythingLLMBaseUrl") as Promise<string | undefined>,
+			this.getSecret("anythingLLMApiKey") as Promise<string | undefined>,
 			this.getGlobalState("anthropicBaseUrl") as Promise<string | undefined>,
 			this.getSecret("geminiApiKey") as Promise<string | undefined>,
 			this.getSecret("openAiNativeApiKey") as Promise<string | undefined>,
@@ -2260,6 +2270,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 				lmStudioBaseUrl,
 				anythingLLMModelId,
 				anythingLLMBaseUrl,
+				anythingLLMApiKey,
 				anthropicBaseUrl,
 				geminiApiKey,
 				openAiNativeApiKey,
@@ -2424,6 +2435,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			"deepSeekApiKey",
 			"mistralApiKey",
 			"unboundApiKey",
+			"anythingLLMApiKey",
 		]
 		for (const key of secretKeys) {
 			await this.storeSecret(key, undefined)

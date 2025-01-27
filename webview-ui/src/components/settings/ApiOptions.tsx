@@ -1162,6 +1162,14 @@ const ApiOptions = ({ apiErrorMessage, modelIdErrorMessage }: ApiOptionsProps) =
 						<span style={{ fontWeight: 500 }}>Base URL (optional)</span>
 					</VSCodeTextField>
 					<VSCodeTextField
+						value={apiConfiguration?.anythingLLMApiKey || ""}
+						style={{ width: "100%" }}
+						type="password"
+						onInput={handleInputChange("anythingLLMApiKey")}
+						placeholder="Enter API Key...">
+						<span style={{ fontWeight: 500 }}>API Key</span>
+					</VSCodeTextField>
+					<VSCodeTextField
 						value={apiConfiguration?.anythingLLMModelId || ""}
 						style={{ width: "100%" }}
 						onInput={handleInputChange("anythingLLMModelId")}
